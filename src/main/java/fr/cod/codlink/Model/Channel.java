@@ -1,3 +1,9 @@
+/*
+ * Project: $Project
+ * Copyright (c) 2021 CoDrake.
+ * You cannot change/copy the code without permission
+ */
+
 package fr.cod.codlink.Model;
 
 public class Channel {
