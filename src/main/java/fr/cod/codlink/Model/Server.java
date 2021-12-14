@@ -118,4 +118,28 @@ public class Server {
         return restTemplate.getForObject("http://192.168.1.100:8080/servers/{id}/",Server.class,id);
 
     }
+
+    //TODO
+    public static Server createServer(){
+        return null;
+    }
+
+    //TODO
+    public void start(){
+
+    }
+
+    //TODO
+    public void stop(){
+
+    }
+
+    //TODO
+    public void delete(){
+
+    }
+
+
+
+
 }

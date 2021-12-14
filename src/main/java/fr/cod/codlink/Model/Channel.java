@@ -48,8 +48,23 @@ public class Channel {
     }
 
     //TODO
-    public Channel createChannel(Channel parent, String name){
+    public static Channel[] getChannels(Server server){
+        return null;
+    }
+
+    //TODO
+    public static Channel getChannel(Server server){
+        return null;
+    }
+
+    //TODO
+    public Channel createChannel(Server server, Channel parent, String name){
 
         return null;
+    }
+
+    //TODO
+    public void deleteChannel(Server server){
+
     }
 }

@@ -173,21 +173,47 @@ public class User {
                 '}';
     }
 
-    public static User[] getUser(int idserver){
+    //TODO
+    public static User[] getUsers(int idserver){
         RestTemplate restTemplate = new RestTemplate();
 
         return restTemplate.getForObject("http://192.168.1.100:8080/servers/{idserver}/user",User[].class,idserver);
     }
 
-    public static void register(String name, String password){
-        //enregistrer le mot de pass dans @passwords
-    }
 
     public static String getPassword(String name){
         if(!passwords.containsKey(name)) return null;
         return passwords.get(name);
     }
 
+    //TODO
+    public static User createUser(String name, String password){
+        return null;
+    }
 
+    //TODO
+    public void  deleteUser(User user){
+
+    }
+
+    //TODO
+    public void kickUser(Server server, User user){
+
+    }
+
+    //TODO
+    public void muteUser(Server server, User user){
+
+    }
+
+    //TODO
+    public void unmuteUser(Server server, User user){
+
+    }
+
+    //TODO
+    public boolean isLinked(){
+        return false;
+    }
 
 }

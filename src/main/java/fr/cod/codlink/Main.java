@@ -17,6 +17,11 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 public class Main {
 
+    /*
+    TODO
+    Utilisateur non enregistré ne doivent pas pouvoir se connecter
+     */
+
     //https://o7planning.org/11647/spring-boot-restful-client-with-resttemplate
     //https://spring.io/guides/gs/rest-service/
 
@@ -40,7 +45,7 @@ public class Main {
                       }
                   }
 */
-        System.out.println(User.getUser(2));
+        System.out.println(User.getUsers(2));
 
 
     }
