@@ -6,40 +6,76 @@
 
 package fr.cod.codlink.Model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.cod.codlink.Main;
+import org.springframework.boot.autoconfigure.cassandra.CassandraProperties;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 public class User {
     private static HashMap<String, String> passwords = new HashMap<>();
+    @JsonProperty("address")
     private int[] address;
+    @JsonProperty("bytespersec")
     private int bytespersec;
+    @JsonProperty("channel")
     private int channel;
+    @JsonProperty("comment")
     private String comment;
+    @JsonProperty("context")
     private String context;
+    @JsonProperty("deaf")
     private boolean deaf;
+    @JsonProperty("identity")
     private String identity;
+    @JsonProperty("idlesecs")
     private int idlesecs;
+    @JsonProperty("mute")
     private boolean mute;
+    @JsonProperty("name")
     private String name;
+    @JsonProperty("onlinesecs")
     private long onlinesecs;
+    @JsonProperty("os")
     private String os;
+    @JsonProperty("osversion")
     private String osversion;
+    @JsonProperty("prioritySpeaker")
     private boolean prioritySpeaker;
+    @JsonProperty("recording")
     private boolean recording;
+    @JsonProperty("release")
     private String release;
+    @JsonProperty("selfDeaf")
     private boolean selfDeaf;
+    @JsonProperty("selfMute")
     private boolean selfMute;
+    @JsonProperty("session")
     private int session;
+    @JsonProperty("suppress")
     private boolean suppress;
+    @JsonProperty("tcpPing")
     private double tcpPing;
+    @JsonProperty("tcponly")
     private boolean tcponly;
-    private boolean udpPing;
+    @JsonProperty("udpPing")
+    private long udpPing;
+    @JsonProperty("userid")
     private int userid;
+    @JsonProperty("version")
     private int version;
 
-    public User() {
+
+    private User() {
     }
 
     public int[] getAddress() {
@@ -130,7 +166,7 @@ public class User {
         return tcponly;
     }
 
-    public boolean isUdpPing() {
+    public long isUdpPing() {
         return udpPing;
     }
 
@@ -173,47 +209,76 @@ public class User {
                 '}';
     }
 
-    //TODO
-    public static User[] getUsers(int idserver){
+    public static User[] getUsers(int idserver) throws JsonProcessingException {
         RestTemplate restTemplate = new RestTemplate();
 
-        return restTemplate.getForObject("http://192.168.1.100:8080/servers/{idserver}/user",User[].class,idserver);
+        String json =  restTemplate.getForObject("http://"+ Main.ip +":"+ Main.port +"/servers/{idserver}/user",String.class,idserver);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode rootNode = mapper.readTree(json);
+
+        User[] users = new User[rootNode.size()];
+        int i =0;
+        for(JsonNode jn : rootNode){
+            users[i]=mapper.readValue(jn.toString(),User.class);
+            i++;
+        }
+        return users;
     }
 
 
     public static String getPassword(String name){
-        if(!passwords.containsKey(name)) return null;
+        if(!passwords.containsKey(name)) return "";
         return passwords.get(name);
     }
 
-    //TODO
-    public static User createUser(String name, String password){
-        return null;
+    public static Message createUser(Server server, String name, String password){
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
+        map.add("username",name);
+        map.add("password",password);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+        Message message= restTemplate.postForObject("http://"+ Main.ip +":"+ Main.port +"/servers/{idserver}/user",request,Message.class,server.getId());
+        return message;
     }
 
-    //TODO
-    public void  deleteUser(User user){
-
+    public void  deleteUser(Server server){
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.delete("http://"+ Main.ip +":"+ Main.port +"/servers/{idserver}/user/{iduser}",server.getId(),this.userid);
     }
 
-    //TODO
-    public void kickUser(Server server, User user){
-
+    /**
+     * Rendre muet un utilisateur, pour celà l'utilisateur doit être enregistré
+     * @param server Serveur où se trouve l'utilisateur
+     * @return @Message (muted)
+     */
+    public Message muteUser(Server server){
+        RestTemplate restTemplate = new RestTemplate();
+        Message result= restTemplate.postForObject("http://"+ Main.ip +":"+ Main.port +"/servers/{idserver}/user/{iduser}/mute",null,Message.class,server.getId(),this.userid);
+        return result;
     }
 
-    //TODO
-    public void muteUser(Server server, User user){
-
+    /**
+     * Rendre muet un utilisateur, pour cela l'utilisateur doit être enregistré
+     * @param server Serveur où se trouve l'utilisateur
+     * @return @Message (muted)
+     */
+    public Message unmuteUser(Server server){
+        RestTemplate restTemplate = new RestTemplate();
+        Message result= restTemplate.postForObject("http://"+ Main.ip +":"+ Main.port +"/servers/{idserver}/user/{iduser}/unmute",null,Message.class,server.getId(),this.userid);
+        return result;
     }
 
-    //TODO
-    public void unmuteUser(Server server, User user){
-
-    }
-
-    //TODO
-    public boolean isLinked(){
-        return false;
+    /**
+     *
+     * @return @{@link Map} Key{context / identity}
+     */
+    public Map<String, String> isLinked(){
+        Map<String, String> results = new HashMap<>();
+        results.put("context",context);
+        results.put("identity",identity);
+        return results;
     }
 
 }

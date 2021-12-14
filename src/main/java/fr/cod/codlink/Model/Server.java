@@ -6,6 +6,7 @@
 
 package fr.cod.codlink.Model;
 
+import fr.cod.codlink.Main;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,7 +26,7 @@ public class Server {
     private int user_count;
     private String welcometext;
 
-    public Server() {
+    private Server() {
     }
 
     public String getAddress() {
@@ -105,7 +106,7 @@ public class Server {
     public static Server[] getServer(){
         RestTemplate restTemplate = new RestTemplate();
 
-        return restTemplate.getForObject("http://192.168.1.100:8080/servers/",Server[].class);
+        return restTemplate.getForObject("http://"+ Main.ip +":"+ Main.port +"/servers/",Server[].class);
     }
 
 
@@ -115,28 +116,41 @@ public class Server {
      */
     public static Server getInfo(int id){
         RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject("http://192.168.1.100:8080/servers/{id}/",Server.class,id);
+        return restTemplate.getForObject("http://"+ Main.ip +":"+ Main.port +"/servers/{id}/",Server.class,id);
 
     }
 
     //TODO
     public static Server createServer(){
-        return null;
+        RestTemplate restTemplate = new RestTemplate();
+        Server server = restTemplate.postForObject("http://"+ Main.ip +":"+ Main.port +"/servers/",null,Server.class);
+        return server;
     }
 
-    //TODO
-    public void start(){
-
+    /**
+     * La requete peut prendre du temps
+     * @return
+     */
+    public Message start(){
+        RestTemplate restTemplate = new RestTemplate();
+        Message result= restTemplate.postForObject("http://"+ Main.ip +":"+ Main.port +"/servers/{idserver}/start",null,Message.class,this.id);
+        return result;
     }
 
-    //TODO
-    public void stop(){
 
+    public Message stop(){
+        RestTemplate restTemplate = new RestTemplate();
+        Message result= restTemplate.postForObject("http://"+ Main.ip +":"+ Main.port +"/servers/{idserver}/stop",null,Message.class,this.id);
+        return result;
     }
 
-    //TODO
     public void delete(){
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.delete("http://"+ Main.ip +":"+ Main.port +"/servers/{idserver}/",this.id);
+    }
 
+    public String join(String username, String password, Channel channel){
+        return  "mumble://"+username+":"+password+"@"+ Main.ip +":"+this.port+"/"+channel.getName();
     }
 
 
